@@ -1,0 +1,90 @@
+# {{APP_DISPLAY_NAME}} — Governance & Technical Standards
+
+> This document defines the coding standards, architecture decisions, and promotion rules
+> for this Power Apps Code App. All contributors must follow these guidelines.
+
+## Tech Stack
+
+| Layer | Technology | Version | Notes |
+|-------|-----------|---------|-------|
+| Framework | React | 18.x | Functional components only, no class components |
+| Language | TypeScript | Strict mode | `strict: true` in tsconfig.json |
+| Build | Vite | 6.x | Dev server on port 3000 |
+| Styling | Tailwind CSS | 4.x | Utility-first, no custom CSS unless necessary |
+| State | Zustand | Latest | Single store per domain, no prop drilling |
+| Data | Power Apps SDK | `@microsoft/power-apps` | Generated services from pac CLI |
+| Deployment | pac CLI | Latest | `pac code push` for all environments |
+
+## Architecture Rules
+
+### File Organization
+- `src/config.ts` — ONLY file that reads `import.meta.env`. Everything else imports from here.
+- `src/services/` — Backend abstraction layer. Always includes localStorage fallback.
+- `src/store/` — Zustand stores. One store per bounded context.
+- `src/components/` — Reusable UI components.
+- `src/pages/` — Top-level page components (one per route/view).
+- `src/generated/` — pac CLI generated files. **NEVER hand-edit.**
+
+### Backend Pattern
+- Every data operation uses the timeout+fallback pattern (see dataService.ts).
+- NEVER check `window.powerAppsBridge` — it is always undefined.
+- The app must work at localhost with localStorage. No exceptions.
+
+### Environment Configuration
+- `.env` is gitignored. Each developer and environment has their own copy.
+- `.env.example` is committed with placeholder values.
+- `power.config.json` is gitignored. Contains environment-specific Power Platform IDs.
+- Vite substitutes env vars at BUILD time. Always rebuild after changing `.env`.
+
+## Code Quality
+
+### TypeScript
+- `strict: true` — no `any` types unless absolutely necessary (document why in a comment).
+- All component props have explicit interfaces.
+- All service functions have explicit return types.
+
+### Tailwind CSS
+- Use utility classes directly in JSX. No separate CSS files unless for complex animations.
+- Consistent spacing scale — stick to Tailwind's defaults.
+- Dark mode support via `dark:` variants where applicable.
+
+### Components
+- Functional components only. No class components.
+- Custom hooks for shared logic (prefix with `use`).
+- Error boundaries around data-fetching components.
+- Loading and empty states for every list/table view.
+
+## PR Checklist
+
+Before merging any pull request, verify:
+
+- [ ] TypeScript compiles with zero errors (`npx tsc --noEmit`)
+- [ ] Build succeeds (`npm run build`)
+- [ ] App loads at localhost:3000 with localStorage backend
+- [ ] No `import.meta.env` usage outside `config.ts`
+- [ ] No hand-edits to files in `src/generated/` or `.power/`
+- [ ] `.env.example` updated if new env vars were added
+- [ ] DEPLOYMENT.md updated if deployment steps changed
+
+## Environment Promotion Rules
+
+| From | To | Requires |
+|------|----|----------|
+| DEV | TEST | PR review + build passes + dev smoke-test |
+| TEST | UAT | QA sign-off + stakeholder demo |
+| UAT | PROD | Business owner approval + change request |
+
+### Promotion Steps
+1. Update `.env` with target environment values
+2. Update `power.config.json` with target environment ID
+3. Verify backend resources (SP list / DV table) exist in target
+4. `pac auth create --environment <TARGET_ENV_ID>`
+5. `pac code add-data-source` with target connection ID
+6. `npm run build && pac code push`
+7. Smoke-test in Power Apps player
+
+## Version History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | {{DATE}} | {{AUTHOR}} | Initial project setup |

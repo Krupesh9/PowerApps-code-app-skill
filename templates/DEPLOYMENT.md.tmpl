@@ -1,0 +1,128 @@
+# {{APP_DISPLAY_NAME}} — Deployment Guide
+
+## Prerequisites
+
+- Node.js >= 18, npm
+- pac CLI (Power Platform CLI) — [Install guide](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction)
+- Authenticated to the target Power Platform environment
+
+## Quick Start (Local Development)
+
+```bash
+# Install dependencies
+npm install
+
+# Copy environment config
+cp .env.example .env
+# Edit .env with your values
+
+# Start dev server (runs with localStorage fallback)
+npm run dev
+# Open http://localhost:3000
+```
+
+The app runs with a localStorage backend locally. The header badge shows **Local**.
+
+## First-Time Deployment
+
+### 1. Authenticate to Power Platform
+
+```bash
+pac auth create --environment <YOUR_ENVIRONMENT_ID>
+pac auth list  # verify correct environment is active
+```
+
+> **Finding your Environment ID:** make.powerapps.com → Settings gear → Session details → environmentId
+
+### 2. Create the app in Power Platform
+
+```bash
+pac code create --appName "{{APP_DISPLAY_NAME}}"
+```
+
+Copy the output `appId` into `power.config.json`.
+
+### 3. Connect the data source
+
+#### SharePoint
+```bash
+# Find your full connection ID
+pac connection list
+# Look for SharePoint Online → copy the Name column value
+
+pac code add-data-source \
+  -a "shared_sharepointonline" \
+  -c "<FULL_CONNECTION_ID>" \
+  -t "<LIST_NAME>" \
+  -d "<SP_SITE_URL>"
+```
+
+#### Dataverse
+```bash
+pac connection list
+# Look for Microsoft Dataverse → copy the Name column value
+
+pac code add-data-source \
+  -a "shared_commondataserviceforapps" \
+  -c "<FULL_CONNECTION_ID>" \
+  -t "<TABLE_LOGICAL_NAME>"
+```
+
+### 4. Build and push
+
+```bash
+npm run build
+pac code push
+```
+
+### 5. Preview with live data
+
+```bash
+pac code preview
+```
+
+### 6. Verify
+
+Open the app in the Power Apps player. The header badge should show **SharePoint** or **Dataverse** (not **Local**).
+
+## Subsequent Deployments
+
+```bash
+npm run build && pac code push
+```
+
+## Promoting to Another Environment (TEST / UAT / PROD)
+
+1. Update `.env` with new environment values (SP site URL, connection ID)
+2. Update `power.config.json` (environmentId — clear appId if new app)
+3. Verify the SharePoint list or Dataverse table exists in the new environment
+4. Authenticate: `pac auth create --environment <NEW_ENV_ID>`
+5. If new app: `pac code create --appName "{{APP_DISPLAY_NAME}}"`
+6. Connect data source: `pac code add-data-source ...` (see above)
+7. Build and push: `npm run build && pac code push`
+8. Smoke-test: create item → save → reload → verify data persists
+
+## Environment-Specific Values
+
+| Value | DEV | TEST | PROD |
+|-------|-----|------|------|
+| SP Site URL | `https://...Dev` | `https://...Test` | `https://...` |
+| SP Connection ID | `xxxxxxxx-...` | `yyyyyyyy-...` | `zzzzzzzz-...` |
+| PP Environment ID | `aaaaaaaa-...` | `bbbbbbbb-...` | `cccccccc-...` |
+| App ID | (after create) | (after create) | (after create) |
+| Env Label | DEV | TEST | PROD |
+
+## Troubleshooting
+
+### App shows "Local" badge in Power Apps player
+- The data source connection is missing or misconfigured
+- Re-run `pac code add-data-source` with correct connection ID
+- Rebuild and push: `npm run build && pac code push`
+
+### "pac: command not found"
+- Install Power Platform Tools VS Code extension, or
+- Add pac CLI to PATH manually
+
+### Build succeeds but push fails
+- Verify `power.config.json` has correct `environmentId` and `appId`
+- Re-authenticate: `pac auth create --environment <ENV_ID>`

@@ -1,0 +1,23 @@
+{
+  "skill_name": "powerapps-code-app",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build me an expense tracker app with SharePoint backend",
+      "expected_output": "Scaffolds a Vite+React+TS+Tailwind project named 'expense-tracker', creates config.ts with SP env vars, dataService.ts with localStorage fallback, BackendBadge component, DEPLOYMENT.md, GOVERNANCE.md, and guides through pac CLI connection setup",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Build an approval workflow app that tracks requests with status (Pending/Approved/Rejected), assigned approver, due date, and comments. Use Dataverse as the backend.",
+      "expected_output": "Creates project plan with data model matching the specified fields, scaffolds project with VITE_BACKEND_TYPE=dataverse, generates dataService.ts with Dataverse-specific patterns, builds list view with status badges, create/edit form with all fields, and includes pac code add-data-source command for shared_commondataserviceforapps",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Build me an app for tracking equipment maintenance",
+      "expected_output": "Asks clarifying questions about fields/features since prompt is minimal, suggests project name like 'equipment-maintenance', then proceeds through full scaffold with reasonable defaults (SharePoint backend, standard CRUD fields like equipment name, location, issue, status, assigned tech)",
+      "files": []
+    }
+  ]
+}

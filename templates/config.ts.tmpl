@@ -1,0 +1,24 @@
+// src/config.ts
+// ─────────────────────────────────────────────────────────────────────────────
+// Centralized environment configuration.
+// This is the ONLY file that reads import.meta.env.VITE_* variables.
+// All other files import constants from here.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Backend type: 'sharepoint' | 'dataverse'
+export const BACKEND_TYPE     = import.meta.env.VITE_BACKEND_TYPE      ?? 'sharepoint';
+
+// ── SharePoint ───────────────────────────────────────────────────────────────
+export const SP_SITE_URL      = import.meta.env.VITE_SP_SITE_URL       ?? '';
+export const SP_LIST_NAME     = import.meta.env.VITE_SP_LIST_NAME      ?? '';
+export const SP_CONNECTOR_ID  = import.meta.env.VITE_SP_CONNECTOR_ID   ?? 'shared_sharepointonline';
+export const SP_CONNECTION_ID = import.meta.env.VITE_SP_CONNECTION_ID   ?? '';
+
+// ── Dataverse ────────────────────────────────────────────────────────────────
+export const DV_TABLE_NAME    = import.meta.env.VITE_DV_TABLE_NAME     ?? '';
+export const DV_CONNECTOR_ID  = import.meta.env.VITE_DV_CONNECTOR_ID   ?? 'shared_commondataserviceforapps';
+export const DV_CONNECTION_ID = import.meta.env.VITE_DV_CONNECTION_ID   ?? '';
+
+// ── App display ──────────────────────────────────────────────────────────────
+export const APP_ENV_LABEL    = import.meta.env.VITE_APP_ENV_LABEL     ?? '';
+export const APP_DISPLAY_NAME = import.meta.env.VITE_APP_DISPLAY_NAME  ?? '';

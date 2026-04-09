@@ -1,0 +1,65 @@
+// src/store/appStore.ts
+//
+// Zustand global state store.
+// Generated from skill template — extend with app-specific state in Phase 5.
+//
+// RULE: No Redux, no Context API for global state — Zustand only.
+// RULE: Components import { useAppStore } from '../store/appStore'.
+
+import { create } from 'zustand';
+import type { AppRecord } from '../services/dataService';
+
+// ── State shape ───────────────────────────────────────────────────────────────
+// Add app-specific fields below the base fields in Phase 5.
+// Example additions:
+//   selectedId: string | null;
+//   filterStatus: 'All' | 'Pending' | 'Approved';
+//   setSelectedId: (id: string | null) => void;
+//   setFilterStatus: (status: AppState['filterStatus']) => void;
+
+interface AppState {
+  // Data
+  items: AppRecord[];
+  // Async state
+  loading: boolean;
+  error: string | null;
+
+  // Actions
+  setItems: (items: AppRecord[]) => void;
+  addItem: (item: AppRecord) => void;
+  updateItem: (id: string, updates: Partial<AppRecord>) => void;
+  removeItem: (id: string) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+}
+
+// ── Store ─────────────────────────────────────────────────────────────────────
+
+export const useAppStore = create<AppState>((set) => ({
+  // Initial state
+  items: [],
+  loading: false,
+  error: null,
+
+  // Actions
+  setItems: (items) => set({ items }),
+
+  addItem: (item) =>
+    set((state) => ({ items: [...state.items, item] })),
+
+  updateItem: (id, updates) =>
+    set((state) => ({
+      items: state.items.map((i) =>
+        i.id === id ? { ...i, ...updates } : i
+      ),
+    })),
+
+  removeItem: (id) =>
+    set((state) => ({
+      items: state.items.filter((i) => i.id !== id),
+    })),
+
+  setLoading: (loading) => set({ loading }),
+
+  setError: (error) => set({ error }),
+}));

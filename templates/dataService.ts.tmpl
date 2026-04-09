@@ -1,0 +1,151 @@
+// src/services/dataService.ts
+//
+// Backend abstraction layer with localStorage fallback.
+// Generated from skill template — customize field names in Phase 5.
+//
+// RULE: This is the ONLY file that imports from '../generated/'.
+// RULE: Never check window.powerAppsBridge — it is always undefined.
+// RULE: All real backend calls must go through withTimeout().
+
+import { BACKEND_TYPE } from '../config';
+
+const BACKEND_TIMEOUT_MS = 6000;
+
+function withTimeout<T>(promise: Promise<T>): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(
+        () => reject(new Error(`BACKEND_TIMEOUT: no response in ${BACKEND_TIMEOUT_MS}ms`)),
+        BACKEND_TIMEOUT_MS
+      )
+    ),
+  ]);
+}
+
+// ── Reactive backend state ────────────────────────────────────────────────────
+// Components subscribe via onBackendChange() so BackendBadge re-renders
+// automatically when the backend is confirmed (or falls back to localStorage).
+
+type BackendType = 'sharepoint' | 'dataverse' | 'localStorage' | 'unknown';
+let _backend: BackendType = 'unknown';
+const _listeners = new Set<(b: BackendType) => void>();
+
+export function getBackend(): BackendType { return _backend; }
+export function onBackendChange(fn: (b: BackendType) => void) {
+  _listeners.add(fn);
+  return () => { _listeners.delete(fn); };
+}
+function setBackend(b: BackendType) {
+  if (_backend !== b) {
+    _backend = b;
+    _listeners.forEach((fn) => fn(b));
+    console.log(`[DataService] backend confirmed: ${b}`);
+  }
+}
+
+// ── localStorage fallback ─────────────────────────────────────────────────────
+// Used during local dev (npm run dev) when the Power Apps bridge isn't present.
+// Replace {{LS_KEY}} with a project-specific key to avoid collisions.
+
+const LS_KEY = '{{LS_KEY}}'; // e.g. 'expense_tracker_v1'
+
+function lsReadAll<T>(): T[] {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch { return []; }
+}
+function lsWriteAll<T>(items: T[]) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch { /* noop */ }
+}
+
+// ── Data model ────────────────────────────────────────────────────────────────
+// Replace with actual fields from your data model (Phase 5).
+// Field names must match the SharePoint column internal names or Dataverse logical names.
+//
+// {{APP_RECORD_FIELDS}}
+// Example:
+//   title: string;
+//   status: 'Pending' | 'Approved' | 'Rejected';
+//   assignedTo: string;
+//   dueDate: string;
+
+export interface AppRecord {
+  id: string;
+  title: string;
+  // TODO (Phase 5): replace with actual fields
+  modifiedOn: string;
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+// After running `pac code add-data-source`, replace the placeholder throws
+// with actual generated service calls. Example:
+//
+//   import { MyListService } from '../generated/index.ts';
+//   const result = await withTimeout(MyListService.getAll({ ... }));
+//
+// Until then, every call falls back to localStorage automatically.
+
+export async function getItems(): Promise<AppRecord[]> {
+  try {
+    // TODO (Phase 5): replace with real service call, e.g.:
+    // const { value } = await withTimeout(MyListService.getAll({ $orderby: 'Modified desc' }));
+    // setBackend(BACKEND_TYPE as BackendType);
+    // return value.map(mapFromGenerated);
+    throw new Error('Real backend not yet connected — using localStorage');
+  } catch (err) {
+    console.warn('[DataService] getItems → localStorage:', (err as Error).message);
+    setBackend('localStorage');
+    return lsReadAll<AppRecord>().sort(
+      (a, b) => new Date(b.modifiedOn).getTime() - new Date(a.modifiedOn).getTime()
+    );
+  }
+}
+
+export async function createItem(
+  record: Omit<AppRecord, 'id' | 'modifiedOn'>
+): Promise<AppRecord> {
+  try {
+    // TODO (Phase 5): replace with real service call
+    throw new Error('Real backend not yet connected — using localStorage');
+  } catch (err) {
+    console.warn('[DataService] createItem → localStorage:', (err as Error).message);
+    setBackend('localStorage');
+    const item: AppRecord = {
+      id: crypto.randomUUID(),
+      ...record,
+      modifiedOn: new Date().toISOString(),
+    };
+    lsWriteAll([...lsReadAll<AppRecord>(), item]);
+    return item;
+  }
+}
+
+export async function updateItem(
+  id: string,
+  updates: Partial<Omit<AppRecord, 'id'>>
+): Promise<AppRecord> {
+  try {
+    // TODO (Phase 5): replace with real service call
+    throw new Error('Real backend not yet connected — using localStorage');
+  } catch (err) {
+    console.warn('[DataService] updateItem → localStorage:', (err as Error).message);
+    setBackend('localStorage');
+    const all = lsReadAll<AppRecord>();
+    const idx = all.findIndex((i) => i.id === id);
+    if (idx === -1) throw new Error(`Item ${id} not found`);
+    all[idx] = { ...all[idx], ...updates, modifiedOn: new Date().toISOString() };
+    lsWriteAll(all);
+    return all[idx];
+  }
+}
+
+export async function deleteItem(id: string): Promise<void> {
+  try {
+    // TODO (Phase 5): replace with real service call
+    throw new Error('Real backend not yet connected — using localStorage');
+  } catch (err) {
+    console.warn('[DataService] deleteItem → localStorage:', (err as Error).message);
+    setBackend('localStorage');
+    lsWriteAll(lsReadAll<AppRecord>().filter((i) => i.id !== id));
+  }
+}
