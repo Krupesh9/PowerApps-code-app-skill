@@ -38,7 +38,18 @@ npx powerapps-code-app
 npx powerapps-code-app --global
 ```
 
-### Option 2: npm global install
+### Option 2: npx from GitHub (no npm publish needed)
+
+Install directly from the GitHub repo:
+
+```bash
+npx github:Krupesh9/PowerApps-code-app-skill
+
+# Or with --global
+npx github:Krupesh9/PowerApps-code-app-skill --global
+```
+
+### Option 3: npm global install
 
 Install once, then run anywhere:
 
@@ -50,11 +61,11 @@ powerapps-code-app
 powerapps-code-app --global
 ```
 
-### Option 3: Clone from Git
+### Option 4: Clone from Git
 
 ```bash
 mkdir -p .claude/skills
-git clone https://github.com/Krupesh9/powerapps-code-app.git .claude/skills/powerapps-code-app
+git clone https://github.com/Krupesh9/PowerApps-code-app-skill.git .claude/skills/powerapps-code-app
 ```
 
 ## Quick Start
