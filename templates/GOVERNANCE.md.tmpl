@@ -13,7 +13,7 @@
 | Styling | Tailwind CSS | 4.x | Utility-first, no custom CSS unless necessary |
 | State | Zustand | Latest | Single store per domain, no prop drilling |
 | Data | Power Apps SDK | `@microsoft/power-apps` | Generated services from pac CLI |
-| Deployment | pac CLI | Latest | `pac code push` for all environments |
+| Deployment | `@microsoft/power-apps` | Latest | `npm run push` / `npm run start` for all environments |
 
 ## Architecture Rules
 
@@ -80,7 +80,7 @@ Before merging any pull request, verify:
 3. Verify backend resources (SP list / DV table) exist in target
 4. `pac auth create --environment <TARGET_ENV_ID>`
 5. `pac code add-data-source` with target connection ID
-6. `npm run build && pac code push`
+6. `npm run build && npm run push`
 7. Smoke-test in Power Apps player
 
 ## Version History

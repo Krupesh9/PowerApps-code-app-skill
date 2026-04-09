@@ -21,17 +21,36 @@ npm install
 # State management
 npm install zustand
 
-# Power Apps SDK (data connectors)
-npm install @microsoft/power-apps
+# Power Apps SDK (data connectors + deployment CLI)
+npm install @microsoft/power-apps@latest
 
 # Tailwind CSS v4
 npm install tailwindcss @tailwindcss/vite
 
-# Dev dependencies
-npm install -D @types/node
+# Dev dependencies (power-apps vite plugin + types)
+npm install -D @microsoft/power-apps-vite @types/node
 ```
 
 > Only add `@xyflow/react` if the app needs a canvas/diagram/flow UI. Don't install it by default.
+
+### Package.json scripts
+
+The scaffolded `package.json` should include these scripts:
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "push": "power-apps push",
+    "start": "power-apps run"
+  }
+}
+```
+
+- `npm run push` — deploys the built app to Power Platform (replaces `pac code push`)
+- `npm run start` — previews the app with live data (replaces `pac code preview`)
 
 ### Required file structure
 
@@ -76,9 +95,10 @@ npm install -D @types/node
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import powerApps from '@microsoft/power-apps-vite';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), powerApps()],
   server: { port: 3000 },
 });
 ```
@@ -408,24 +428,26 @@ Generated service usage is identical to SharePoint.
 ### First deploy to a new environment
 
 ```powershell
+# Auth and app creation still use pac CLI
 pac auth create --environment <PP_ENVIRONMENT_ID>
 pac code create --appName "<APP_DISPLAY_NAME>"
 # → Copy the new appId into power.config.json
 
+# Build and deploy via npm scripts (uses @microsoft/power-apps)
 npm run build
-pac code push
+npm run push                    # runs: power-apps push
 ```
 
 ### Subsequent pushes
 
 ```powershell
-npm run build && pac code push
+npm run build && npm run push
 ```
 
-### Local preview with live data
+### Preview with live data
 
 ```powershell
-pac code preview
+npm run start                   # runs: power-apps run
 # Opens in browser connected to target environment
 ```
 
@@ -434,10 +456,11 @@ pac code preview
 1. Update `.env` with new environment values
 2. Update `power.config.json` (environmentId, appId)
 3. Verify the SP list / DV table exists in the new env
-4. Run `pac code add-data-source` with new connection ID
-5. `npm run build`
-6. `pac code push`
-7. Smoke-test: create item → save → reload → verify
+4. `pac auth create --environment <NEW_ENV_ID>`
+5. Run `pac code add-data-source` with new connection ID
+6. `npm run build`
+7. `npm run push`
+8. Smoke-test: create item → save → reload → verify
 
 ---
 

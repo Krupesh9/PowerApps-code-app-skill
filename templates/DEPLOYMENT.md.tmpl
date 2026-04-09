@@ -3,7 +3,8 @@
 ## Prerequisites
 
 - Node.js >= 18, npm
-- pac CLI (Power Platform CLI) — [Install guide](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction)
+- pac CLI (Power Platform CLI) — needed for auth and connection setup ([Install guide](https://learn.microsoft.com/en-us/power-platform/developer/cli/introduction))
+- `@microsoft/power-apps` — installed as a project dependency (handles build/push/preview)
 - Authenticated to the target Power Platform environment
 
 ## Quick Start (Local Development)
@@ -72,13 +73,13 @@ pac code add-data-source \
 
 ```bash
 npm run build
-pac code push
+npm run push                    # runs: power-apps push
 ```
 
 ### 5. Preview with live data
 
 ```bash
-pac code preview
+npm run start                   # runs: power-apps run
 ```
 
 ### 6. Verify
@@ -88,7 +89,7 @@ Open the app in the Power Apps player. The header badge should show **SharePoint
 ## Subsequent Deployments
 
 ```bash
-npm run build && pac code push
+npm run build && npm run push
 ```
 
 ## Promoting to Another Environment (TEST / UAT / PROD)
@@ -99,7 +100,7 @@ npm run build && pac code push
 4. Authenticate: `pac auth create --environment <NEW_ENV_ID>`
 5. If new app: `pac code create --appName "{{APP_DISPLAY_NAME}}"`
 6. Connect data source: `pac code add-data-source ...` (see above)
-7. Build and push: `npm run build && pac code push`
+7. Build and push: `npm run build && npm run push`
 8. Smoke-test: create item → save → reload → verify data persists
 
 ## Environment-Specific Values
@@ -117,7 +118,7 @@ npm run build && pac code push
 ### App shows "Local" badge in Power Apps player
 - The data source connection is missing or misconfigured
 - Re-run `pac code add-data-source` with correct connection ID
-- Rebuild and push: `npm run build && pac code push`
+- Rebuild and push: `npm run build && npm run push`
 
 ### "pac: command not found"
 - Install Power Platform Tools VS Code extension, or

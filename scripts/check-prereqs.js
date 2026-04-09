@@ -29,7 +29,8 @@ function getInstallHint(name) {
     'Node.js': 'https://nodejs.org → Download LTS',
     'npm': 'Comes with Node.js',
     'Git': 'https://git-scm.com/downloads',
-    'pac CLI': 'Install "Power Platform Tools" VS Code extension, or: npm install -g pac-cli',
+    'pac CLI': 'Install "Power Platform Tools" VS Code extension (needed for auth & connections)',
+    '@microsoft/power-apps': 'npm install @microsoft/power-apps@latest (installed per-project during scaffold)',
   };
   return hints[name] || 'See documentation';
 }
@@ -67,6 +68,28 @@ if (!pacFound && os.platform() === 'win32') {
       } catch { /* still missing */ }
     }
   } catch { /* no VS Code extension found */ }
+}
+
+// @microsoft/power-apps — check if available in local project's node_modules
+try {
+  const ver = execSync('npm ls @microsoft/power-apps --json', {
+    encoding: 'utf-8', timeout: 10000, stdio: ['pipe', 'pipe', 'pipe'],
+  });
+  const parsed = JSON.parse(ver);
+  const depVersion = parsed.dependencies?.['@microsoft/power-apps']?.version;
+  if (depVersion) {
+    results.push({ name: '@microsoft/power-apps', status: 'OK', version: depVersion, detail: '' });
+  } else {
+    throw new Error('not in project');
+  }
+} catch {
+  // Not found locally — that's fine, it gets installed per-project during scaffold
+  results.push({
+    name: '@microsoft/power-apps',
+    status: 'OK (per-project)',
+    version: '-',
+    detail: 'Installed during scaffold (npm install @microsoft/power-apps@latest)',
+  });
 }
 
 // Print results

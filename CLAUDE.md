@@ -82,12 +82,14 @@ npm run dev                     # Start at localhost:3000 (localStorage backend)
 # Build
 npm run build                   # TypeScript check + Vite build
 
-# Power Platform
+# Deploy & Preview (via @microsoft/power-apps)
+npm run push                    # Deploy to Power Platform (power-apps push)
+npm run start                   # Preview with live data (power-apps run)
+
+# Power Platform setup (pac CLI — still needed for auth & connections)
 pac auth create --environment <ID>   # Authenticate
 pac code create --appName "Name"     # First-time app creation
 pac code add-data-source ...         # Connect SP/DV (see DEPLOYMENT.md)
-pac code push                        # Deploy to Power Platform
-pac code preview                     # Preview with live data
 pac connection list                  # Find connection IDs
 
 # Prerequisite check

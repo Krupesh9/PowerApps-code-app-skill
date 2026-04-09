@@ -9,6 +9,7 @@ description: >
   This skill orchestrates the full lifecycle: project planning (via gstack), UI design (via ui-ux-pro-max),
   scaffolding, coding, testing, and deployment guidance. Even simple prompts like "Build me an approval app"
   should trigger this skill.
+user_invocable: true
 ---
 
 # Power Apps Code App Skill
@@ -16,11 +17,53 @@ description: >
 Build production-grade Power Apps Code Apps from a simple prompt. This skill handles the full lifecycle:
 planning → scaffolding → UI design → feature development → testing → deployment.
 
+## Slash Command Usage
+
+This skill is available as `/powerapps-code-app` in Claude Code.
+
+```
+/powerapps-code-app Build me an expense tracker with SharePoint backend
+/powerapps-code-app help
+```
+
+### `/powerapps-code-app help`
+
+When the user runs `/powerapps-code-app help` (or asks for help with the skill), display this quick reference:
+
+```
+╔══════════════════════════════════════════════════════════════════╗
+║   Power Apps Code App — Quick Reference                        ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                 ║
+║  BUILD A NEW APP:                                               ║
+║    /powerapps-code-app Build me a [description] app             ║
+║                                                                 ║
+║  LOCAL DEVELOPMENT:                                             ║
+║    npm run dev              → Start at localhost:3000 (local)   ║
+║    npm run build            → TypeScript check + Vite build     ║
+║                                                                 ║
+║  POWER PLATFORM DEPLOYMENT:                                     ║
+║    npm run push             → Deploy to Power Platform          ║
+║    npm run start            → Preview with live data            ║
+║                                                                 ║
+║  CONNECTION SETUP (one-time per environment):                   ║
+║    pac auth create --environment <ENV_ID>                       ║
+║    pac connection list      → Find your connection IDs          ║
+║                                                                 ║
+║  PREREQUISITE CHECK:                                            ║
+║    node .claude/skills/powerapps-code-app/scripts/check-prereqs.js  ║
+║                                                                 ║
+║  PHASES: Plan → Scaffold → Connect → Design → Build → Deploy   ║
+║                                                                 ║
+╚══════════════════════════════════════════════════════════════════╝
+```
+
 ## Overview
 
 Power Apps Code Apps let you build canvas apps using React + TypeScript instead of the low-code designer.
-This skill scaffolds a Vite project wired to the Power Apps SDK, connects SharePoint or Dataverse backends
-with a localStorage fallback for local dev, and guides deployment through Dev/Test/Prod environments.
+This skill scaffolds a Vite project wired to the Power Apps SDK (`@microsoft/power-apps`), connects
+SharePoint or Dataverse backends with a localStorage fallback for local dev, and guides deployment
+through Dev/Test/Prod environments using npm scripts (`npm run push`, `npm run start`).
 
 ## Prerequisites
 
@@ -32,7 +75,7 @@ node scripts/check-prereqs.js
 
 If anything fails, guide the user through installation. Required tools:
 - Node.js >= 18 and npm
-- pac CLI (Power Platform CLI) — from VS Code extension or standalone
+- pac CLI (Power Platform CLI) — needed for `pac auth`, `pac connection list`, and `pac code add-data-source`
 - Git
 
 ## Workflow — Follow These Phases In Order
@@ -67,13 +110,27 @@ npm create vite@latest <project-name> -- --template react-ts
 cd <project-name>
 
 # 2. Install core dependencies
-npm install zustand @microsoft/power-apps
+npm install zustand @microsoft/power-apps@latest
 
 # 3. Install Tailwind CSS v4
 npm install tailwindcss @tailwindcss/vite
 
-# 4. Install dev dependencies
-npm install -D @types/node
+# 4. Install dev dependencies (power-apps-vite plugin + types)
+npm install -D @microsoft/power-apps-vite @types/node
+```
+
+Then add these npm scripts to `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "push": "power-apps push",
+    "start": "power-apps run"
+  }
+}
 ```
 
 Then generate these files from the templates directory (read each template before generating):
@@ -98,9 +155,10 @@ After generating files, configure Vite for Tailwind and set port to 3000:
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import powerApps from '@microsoft/power-apps-vite';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), powerApps()],
   server: { port: 3000 },
 });
 ```
@@ -160,10 +218,10 @@ Key patterns to follow (see `references/blueprint.md` for details):
 
 1. **Local smoke test**: `npm run dev` → verify app loads at localhost:3000 with localStorage backend
 2. **Build check**: `npm run build` → confirm no TypeScript or build errors
-3. **Guide the user through pac CLI deployment**:
+3. **Guide the user through deployment**:
 
 ```bash
-# First-time deploy
+# First-time setup — authenticate and create the app
 pac auth create --environment <ENV_ID>
 pac code create --appName "<APP_DISPLAY_NAME>"
 # Copy the appId into power.config.json
@@ -175,12 +233,12 @@ pac code add-data-source \
   -t "<LIST_NAME>" \
   -d "<SP_SITE_URL>"
 
-# Build and push
+# Build and deploy (uses @microsoft/power-apps npm package)
 npm run build
-pac code push
+npm run push                    # equivalent to: npx power-apps push
 
 # Preview with live data
-pac code preview
+npm run start                   # equivalent to: npx power-apps run
 ```
 
 4. Tell the user to open the app in the Power Apps player and verify the backend badge shows the real backend (not "Local").

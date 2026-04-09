@@ -3,7 +3,9 @@
     "allow": [
       "Bash(node bin/install.js --help)",
       "Bash(npm pack:*)",
-      "Bash(npm view:*)"
+      "Bash(npm view:*)",
+      "Bash(node scripts/check-prereqs.js)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

@@ -21,10 +21,11 @@ If pac is not installed at all, guide them:
 
 # Option B: Standalone (Windows)
 # Download from https://aka.ms/PowerAppsCLI
-
-# Option C: npm (cross-platform)
-npm install -g pac-cli
 ```
+
+> **Note:** `pac` CLI is still needed for authentication (`pac auth`), discovering connections
+> (`pac connection list`), and adding data sources (`pac code add-data-source`).
+> For build/deploy/preview, use `npm run push` and `npm run start` instead (powered by `@microsoft/power-apps`).
 
 ## Step 2: Authenticate to Power Platform
 
