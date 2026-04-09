@@ -1,0 +1,39 @@
+{
+  "name": "powerapps-code-app",
+  "version": "1.0.0",
+  "description": "Claude Code skill that scaffolds, develops, and deploys Power Apps Code Apps end-to-end using React + TypeScript + Vite + Tailwind CSS.",
+  "bin": {
+    "powerapps-code-app": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "SKILL.md",
+    "CLAUDE.md",
+    "references/",
+    "templates/",
+    "scripts/",
+    "evals/",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "claude-code-skill",
+    "power-apps",
+    "power-platform",
+    "react",
+    "typescript",
+    "vite",
+    "tailwindcss",
+    "low-code",
+    "code-app"
+  ],
+  "author": "Krupesh9",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Krupesh9/powerapps-code-app.git"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

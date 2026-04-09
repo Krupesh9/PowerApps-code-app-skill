@@ -26,15 +26,35 @@ Turn a simple prompt like **"Build me an expense tracker"** into a complete, dep
 
 ## Installation
 
-Clone this repo into your Claude Code skills directory:
+### Option 1: npx (Recommended)
+
+Run a single command from your project root — the skill files are copied automatically:
 
 ```bash
-# Navigate to your project (or global skills)
-mkdir -p .claude/skills
-cd .claude/skills
+# Install into current project (.claude/skills/powerapps-code-app/)
+npx powerapps-code-app
 
-# Clone the skill
-git clone https://github.com/<your-org>/powerapps-code-app.git
+# Or install globally for all projects (~/.claude/skills/powerapps-code-app/)
+npx powerapps-code-app --global
+```
+
+### Option 2: npm global install
+
+Install once, then run anywhere:
+
+```bash
+npm install -g powerapps-code-app
+
+# Then from any project directory:
+powerapps-code-app
+powerapps-code-app --global
+```
+
+### Option 3: Clone from Git
+
+```bash
+mkdir -p .claude/skills
+git clone https://github.com/Krupesh9/powerapps-code-app.git .claude/skills/powerapps-code-app
 ```
 
 ## Quick Start

@@ -1,0 +1,9 @@
+# Git
+.git/
+.gitattributes
+
+# Dev files
+BOOTSTRAP-PROMPT.md
+{references,templates,scripts}/
+
+# Docs (README is included by npm automatically)
